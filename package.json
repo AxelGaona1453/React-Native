@@ -1,0 +1,21 @@
+{
+  "name": "react-native",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AxelGaona1453/React-Native.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/AxelGaona1453/React-Native/issues"
+  },
+  "homepage": "https://github.com/AxelGaona1453/React-Native#readme"
+}
