@@ -76,7 +76,7 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>LoL Champion Finder</h1>
+        <h1>Aprende a jugar LOL</h1>
         <p>Busca campeones y mira builds recomendadas por elo.</p>
         <div className="header-actions">
           <button type="button" onClick={logout}>
