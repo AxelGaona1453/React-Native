@@ -9,6 +9,28 @@ let championsCache = null;
 let lastFetchAt = 0;
 let activeVersion = "14.x.1";
 const UNKNOWN_ITEM_ID = "7050";
+const customChampions = [];
+const customBuildOverrides = {}; // championId -> elo -> build
+
+const getAllChampions = async () => {
+  const champions = await getChampionsData();
+  return [...champions, ...customChampions];
+};
+
+const getCustomBuilds = (championId) => {
+  return customBuildOverrides[championId] || {};
+};
+
+const computeChampionBuilds = (champion) => {
+  const defaultBuild = CHAMPION_BUILD_OVERRIDES[champion.id] || getRoleBuild(champion.tags);
+  const customBuild = getCustomBuilds(champion.id);
+  return { ...defaultBuild, ...customBuild };
+};
+
+const buildChampionDetail = (champion) => ({
+  ...champion,
+  buildByElo: withItemImages(computeChampionBuilds(champion)),
+});
 
 const ITEM_ID_BY_NAME = {
   "Escudo de Doran": "1054",
@@ -536,7 +558,7 @@ export const getChampionsData = async () => {
 };
 
 export const searchChampions = async (search = "") => {
-  const champions = await getChampionsData();
+  const champions = await getAllChampions();
   const term = search.trim().toLowerCase();
 
   if (!term) {
@@ -550,15 +572,134 @@ export const searchChampions = async (search = "") => {
 };
 
 export const findChampionById = async (id) => {
-  const champions = await getChampionsData();
+  const champions = await getAllChampions();
   const champion = champions.find(
     (item) => item.id.toLowerCase() === id.toLowerCase(),
   );
 
   if (!champion) return null;
 
-  return {
-    ...champion,
-    buildByElo: withItemImages(getChampionSpecificBuild(champion)),
+  return buildChampionDetail(champion);
+};
+
+export const getChampionBuilds = async (id) => {
+  const champions = await getAllChampions();
+  const champion = champions.find(
+    (item) => item.id.toLowerCase() === id.toLowerCase(),
+  );
+  if (!champion) return null;
+
+  return getCustomBuilds(champion.id);
+};
+
+export const createChampionBuild = async (championId, buildData) => {
+  const champions = await getAllChampions();
+  const champion = champions.find(
+    (item) => item.id.toLowerCase() === championId.toLowerCase(),
+  );
+  if (!champion) {
+    throw new Error("Campeon no encontrado");
+  }
+
+  const { elo, starting, core, situational, boots } = buildData;
+  if (!elo || !Array.isArray(starting) || !Array.isArray(core) || !Array.isArray(situational) || !Array.isArray(boots)) {
+    throw new Error("Los campos elo, starting, core, situational y boots son obligatorios");
+  }
+
+  const championKey = champion.id;
+  const championBuilds = customBuildOverrides[championKey] || {};
+  if (championBuilds[elo]) {
+    throw new Error("Ya existe un build custom para ese elo");
+  }
+
+  customBuildOverrides[championKey] = {
+    ...championBuilds,
+    [elo]: { starting, core, situational, boots },
   };
+
+  return customBuildOverrides[championKey][elo];
+};
+
+export const updateChampionBuild = async (championId, elo, buildData) => {
+  const championKey = championId.toString();
+  if (!customBuildOverrides[championKey] || !customBuildOverrides[championKey][elo]) {
+    return null;
+  }
+
+  const { starting, core, situational, boots } = buildData;
+  if (!Array.isArray(starting) || !Array.isArray(core) || !Array.isArray(situational) || !Array.isArray(boots)) {
+    throw new Error("Los campos starting, core, situational y boots son obligatorios");
+  }
+
+  customBuildOverrides[championKey][elo] = { starting, core, situational, boots };
+  return customBuildOverrides[championKey][elo];
+};
+
+export const deleteChampionBuild = async (championId, elo) => {
+  const championKey = championId.toString();
+  if (!customBuildOverrides[championKey] || !customBuildOverrides[championKey][elo]) {
+    return false;
+  }
+
+  delete customBuildOverrides[championKey][elo];
+  if (Object.keys(customBuildOverrides[championKey]).length === 0) {
+    delete customBuildOverrides[championKey];
+  }
+
+  return true;
+};
+
+export const createChampion = async (championData) => {
+  const { id, name, title, tags = [], blurb = "", image = "" } = championData;
+
+  if (!name || !title || !Array.isArray(tags) || !image) {
+    throw new Error("Los campos name, title, tags e image son obligatorios");
+  }
+
+  const championId = id?.toString().trim() || `custom-${Date.now()}`;
+  const existing = await findChampionById(championId);
+  if (existing) {
+    throw new Error("Ya existe un campeon con ese id");
+  }
+
+  const newChampion = {
+    id: championId,
+    key: championId,
+    name,
+    title,
+    tags,
+    blurb,
+    image,
+  };
+
+  customChampions.push(newChampion);
+  return newChampion;
+};
+
+export const updateChampion = async (id, championData) => {
+  const index = customChampions.findIndex(
+    (item) => item.id.toLowerCase() === id.toLowerCase(),
+  );
+  if (index === -1) return null;
+
+  const existingChampion = customChampions[index];
+  const updatedChampion = {
+    ...existingChampion,
+    ...championData,
+    id: existingChampion.id,
+    key: existingChampion.id,
+  };
+
+  customChampions[index] = updatedChampion;
+  return updatedChampion;
+};
+
+export const deleteChampion = async (id) => {
+  const index = customChampions.findIndex(
+    (item) => item.id.toLowerCase() === id.toLowerCase(),
+  );
+  if (index === -1) return false;
+
+  customChampions.splice(index, 1);
+  return true;
 };

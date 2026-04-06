@@ -15,7 +15,18 @@ app.get("/", (_req, res) => {
   res.status(200).json({
     ok: true,
     message: "Backend LoL activo",
-    endpoints: ["/api/health", "/api/champions", "/api/champions/:id"],
+    endpoints: [
+      "/api/health",
+      "/api/champions",
+      "/api/champions/:id",
+      "GET /api/champions/:id/builds",
+      "POST /api/champions/:id/builds",
+      "PUT /api/champions/:id/builds/:elo",
+      "DELETE /api/champions/:id/builds/:elo",
+      "POST /api/champions",
+      "PUT /api/champions/:id",
+      "DELETE /api/champions/:id",
+    ],
   });
 });
 
