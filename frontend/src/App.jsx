@@ -1,21 +1,31 @@
-﻿import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ChampionSearchBar from "./components/ChampionSearchBar";
 import ChampionList from "./components/ChampionList";
 import ChampionDetail from "./components/ChampionDetail";
 import ChampionBuildManager from "./components/ChampionBuildManager";
 import AuthSection from "./components/AuthSection";
 import PlayerSearchPanel from "./components/PlayerSearchPanel";
+import ChampionAdmin from "./components/ChampionAdmin";
 import useAuth from "./hooks/useAuth";
-import useChampionSearch from "./hooks/useChampionSearch";
 import useChampionDetail from "./hooks/useChampionDetail";
 import useChampionBuilds from "./hooks/useChampionBuilds";
 import usePlayerMatches from "./hooks/usePlayerMatches";
+import { useGlobalChampions } from "./context/ChampionContext";
 import "./App.css";
 
 function App() {
   const [search, setSearch] = useState("");
 
-  const { champions, listLoading, error: championError } = useChampionSearch(search);
+  const { champions, loading: listLoading, error: championError, fetchChampions } = useGlobalChampions();
+
+  // Cargar campeones cuando cambie la búsqueda
+  useEffect(() => {
+    const debounce = setTimeout(() => {
+      fetchChampions(search);
+    }, 250);
+    return () => clearTimeout(debounce);
+  }, [search, fetchChampions]);
+
   const {
     selectedChampionId,
     selectedChampion,
@@ -24,6 +34,7 @@ function App() {
     setSelectedChampionId,
     refreshChampion,
   } = useChampionDetail(champions);
+
   const {
     token,
     authMode,
@@ -36,6 +47,7 @@ function App() {
     register,
     logout,
   } = useAuth();
+
   const {
     riotForm,
     setRiotForm,
@@ -43,6 +55,7 @@ function App() {
     error: playerError,
     searchPlayerMatches,
   } = usePlayerMatches();
+
   const {
     customBuilds,
     loading: customBuildsLoading,
@@ -95,6 +108,8 @@ function App() {
         playerData={playerData}
         onSearchMatches={searchPlayerMatches}
       />
+
+      <ChampionAdmin />
 
       <section>
         <h2 className="section-title">{listTitle}</h2>
