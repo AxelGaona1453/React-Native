@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import ChampionSearchBar from "./components/ChampionSearchBar";
 import ChampionList from "./components/ChampionList";
 import ChampionDetail from "./components/ChampionDetail";
@@ -58,12 +58,15 @@ function App() {
 
   const {
     customBuilds,
-    loading: customBuildsLoading,
-    error: customBuildsError,
     refresh: refreshChampionBuilds,
   } = useChampionBuilds(selectedChampionId);
 
   const error = championError || detailError || playerError;
+
+  const handleBuildSaved = useCallback(() => {
+    refreshChampion();
+    refreshChampionBuilds();
+  }, [refreshChampion, refreshChampionBuilds]);
 
   const listTitle = useMemo(() => {
     if (!search.trim()) return "Todos los campeones";
@@ -129,10 +132,7 @@ function App() {
         <ChampionBuildManager
           champion={selectedChampion}
           customBuilds={customBuilds}
-          onSaved={() => {
-            refreshChampion();
-            refreshChampionBuilds();
-          }}
+          onSaved={handleBuildSaved}
         />
       )}
     </div>

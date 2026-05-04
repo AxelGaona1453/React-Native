@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 function ChampionSearchBar({ value, onChange }) {
   return (
     <div className="search-container">
@@ -12,4 +14,4 @@ function ChampionSearchBar({ value, onChange }) {
   );
 }
 
-export default ChampionSearchBar;
+export default memo(ChampionSearchBar);

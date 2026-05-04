@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer, useCallback } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import React, { createContext, useContext, useReducer, useCallback, useMemo } from "react";
 import {
   getChampions,
   createChampion as apiCreateChampion,
@@ -65,7 +66,7 @@ export function ChampionProvider({ children }) {
     }
   }, []);
 
-  const addChampion = async (championData) => {
+  const addChampion = useCallback(async (championData) => {
     dispatch({ type: "SET_LOADING", payload: true });
     try {
       const newChampion = await apiCreateChampion(championData);
@@ -75,9 +76,9 @@ export function ChampionProvider({ children }) {
       dispatch({ type: "SET_ERROR", payload: err.message });
       throw err;
     }
-  };
+  }, []);
 
-  const editChampion = async (id, championData) => {
+  const editChampion = useCallback(async (id, championData) => {
     dispatch({ type: "SET_LOADING", payload: true });
     try {
       const updatedChampion = await apiUpdateChampion(id, championData);
@@ -87,9 +88,9 @@ export function ChampionProvider({ children }) {
       dispatch({ type: "SET_ERROR", payload: err.message });
       throw err;
     }
-  };
+  }, []);
 
-  const deleteChampion = async (id) => {
+  const deleteChampion = useCallback(async (id) => {
     dispatch({ type: "SET_LOADING", payload: true });
     try {
       await apiDeleteChampion(id);
@@ -98,18 +99,18 @@ export function ChampionProvider({ children }) {
       dispatch({ type: "SET_ERROR", payload: err.message });
       throw err;
     }
-  };
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    ...state,
+    fetchChampions,
+    addChampion,
+    editChampion,
+    deleteChampion,
+  }), [state, fetchChampions, addChampion, editChampion, deleteChampion]);
 
   return (
-    <ChampionContext.Provider
-      value={{
-        ...state,
-        fetchChampions,
-        addChampion,
-        editChampion,
-        deleteChampion,
-      }}
-    >
+    <ChampionContext.Provider value={contextValue}>
       {children}
     </ChampionContext.Provider>
   );

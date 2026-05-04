@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { getPlayerMatches } from "../services/champions.service";
 
 function usePlayerMatches() {
@@ -6,7 +6,7 @@ function usePlayerMatches() {
   const [playerData, setPlayerData] = useState(null);
   const [error, setError] = useState(null);
 
-  const searchPlayerMatches = async (event) => {
+  const searchPlayerMatches = useCallback(async (event) => {
     event.preventDefault();
 
     try {
@@ -17,7 +17,7 @@ function usePlayerMatches() {
       setError(err.message);
       setPlayerData(null);
     }
-  };
+  }, [riotForm.gameName, riotForm.tagLine]);
 
   return {
     riotForm,

@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 function LoginModal({
   isOpen,
   onClose,
@@ -54,4 +56,4 @@ function LoginModal({
   );
 }
 
-export default LoginModal;
+export default memo(LoginModal);

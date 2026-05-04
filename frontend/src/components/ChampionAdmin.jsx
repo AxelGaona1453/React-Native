@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback, memo } from "react";
 import { useGlobalChampions } from "../context/ChampionContext";
 
 function ChampionAdmin() {
@@ -13,7 +13,18 @@ function ChampionAdmin() {
   
   const fileInputRef = useRef(null);
 
-  const handleAdd = async (e) => {
+  const clearForm = useCallback(() => {
+    setId("");
+    setName("");
+    setTitle("");
+    setTags("");
+    setImage("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, []);
+
+  const handleAdd = useCallback(async (e) => {
     e.preventDefault();
     try {
       await addChampion({
@@ -28,9 +39,9 @@ function ChampionAdmin() {
     } catch (err) {
       setStatusMessage("Error al agregar campeón: " + err.message);
     }
-  };
+  }, [addChampion, id, name, title, tags, image, clearForm]);
 
-  const handleEdit = async (e) => {
+  const handleEdit = useCallback(async (e) => {
     e.preventDefault();
     if (!id.trim()) {
       setStatusMessage("Se requiere el ID para editar.");
@@ -48,9 +59,9 @@ function ChampionAdmin() {
     } catch (err) {
       setStatusMessage("Error al editar campeón: " + err.message);
     }
-  };
+  }, [editChampion, id, name, title, tags, image, clearForm]);
 
-  const handleDelete = async (e) => {
+  const handleDelete = useCallback(async (e) => {
     e.preventDefault();
     if (!id.trim()) {
       setStatusMessage("Se requiere el ID para eliminar.");
@@ -63,20 +74,9 @@ function ChampionAdmin() {
     } catch (err) {
       setStatusMessage("Error al eliminar campeón: " + err.message);
     }
-  };
+  }, [deleteChampion, id, clearForm]);
 
-  const clearForm = () => {
-    setId("");
-    setName("");
-    setTitle("");
-    setTags("");
-    setImage("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  const handleImageUpload = (e) => {
+  const handleImageUpload = useCallback((e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -85,7 +85,7 @@ function ChampionAdmin() {
       };
       reader.readAsDataURL(file);
     }
-  };
+  }, []);
 
   return (
     <section className="panel">
@@ -158,4 +158,4 @@ function ChampionAdmin() {
   );
 }
 
-export default ChampionAdmin;
+export default memo(ChampionAdmin);

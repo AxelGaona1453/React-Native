@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback, memo } from "react";
 import {
   createChampionBuild,
   updateChampionBuild,
@@ -21,8 +21,7 @@ function ChampionBuildManager({ champion, customBuilds, onSaved }) {
   const [statusMessage, setStatusMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const defaultBuilds = useMemo(() => champion?.buildByElo || {}, [champion]);
-  const customElos = Object.keys(customBuilds || {});
+  const customElos = useMemo(() => Object.keys(customBuilds || {}), [customBuilds]);
 
   useEffect(() => {
     setElo("");
@@ -33,16 +32,16 @@ function ChampionBuildManager({ champion, customBuilds, onSaved }) {
     setStatusMessage("");
   }, [champion]);
 
-  const loadFromBuild = (selectedElo, build) => {
+  const loadFromBuild = useCallback((selectedElo, build) => {
     setElo(selectedElo);
     setStarting(formatItems(build.starting));
     setCore(formatItems(build.core));
     setSituational(formatItems(build.situational));
     setBoots(formatItems(build.boots));
     setStatusMessage("");
-  };
+  }, []);
 
-  const handleSave = async (event) => {
+  const handleSave = useCallback(async (event) => {
     event.preventDefault();
     if (!elo.trim()) {
       setStatusMessage("El campo Elo es obligatorio.");
@@ -74,9 +73,9 @@ function ChampionBuildManager({ champion, customBuilds, onSaved }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [elo, starting, core, situational, boots, customBuilds, champion, onSaved]);
 
-  const handleDelete = async (deleteElo) => {
+  const handleDelete = useCallback(async (deleteElo) => {
     const targetElo = deleteElo?.trim() || elo.trim();
     if (!targetElo) {
       setStatusMessage("Selecciona un elo para borrar primero.");
@@ -105,7 +104,7 @@ function ChampionBuildManager({ champion, customBuilds, onSaved }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [elo, customBuilds, champion, onSaved]);
 
   return (
     <section className="panel">
@@ -170,7 +169,7 @@ function ChampionBuildManager({ champion, customBuilds, onSaved }) {
           <button type="submit" disabled={loading}>
             {customBuilds[elo.trim()] ? "Actualizar build" : "Crear build"}
           </button>
-          <button type="button" disabled={loading} onClick={handleDelete}>
+          <button type="button" disabled={loading} onClick={() => handleDelete()}>
             Borrar build
           </button>
         </div>
@@ -181,4 +180,4 @@ function ChampionBuildManager({ champion, customBuilds, onSaved }) {
   );
 }
 
-export default ChampionBuildManager;
+export default memo(ChampionBuildManager);

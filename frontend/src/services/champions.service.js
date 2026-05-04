@@ -1,6 +1,6 @@
 const BASE_URL = "http://localhost:4000/api";
 
-const getAuthHeaders = () => {
+export const getAuthHeaders = () => {
   const token = localStorage.getItem("authToken");
   return token ? { Authorization: `Bearer ${token}` } : {};
 };

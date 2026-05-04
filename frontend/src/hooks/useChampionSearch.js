@@ -14,7 +14,7 @@ function useChampionSearch(search) {
       try {
         const result = await getChampions(search);
         setChampions(result);
-      } catch (err) {
+      } catch {
         setError("No se pudieron cargar los campeones. Revisa el backend.");
       } finally {
         setListLoading(false);

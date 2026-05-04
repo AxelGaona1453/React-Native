@@ -1,4 +1,6 @@
-function BuildSection({ elo, build }) {
+import { memo } from "react";
+
+const BuildSection = memo(function BuildSection({ elo, build }) {
   const renderItems = (items) => (
     <div className="item-row">
       {items.map((item) => (
@@ -23,7 +25,7 @@ function BuildSection({ elo, build }) {
       {renderItems(build.boots)}
     </article>
   );
-}
+});
 
 function ChampionDetail({ champion, loading }) {
   if (loading) {
@@ -61,4 +63,4 @@ function ChampionDetail({ champion, loading }) {
   );
 }
 
-export default ChampionDetail;
+export default memo(ChampionDetail);

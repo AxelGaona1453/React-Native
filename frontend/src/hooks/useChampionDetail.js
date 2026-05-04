@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getChampionById } from "../services/champions.service";
 
 function useChampionDetail(champions) {
@@ -35,7 +35,7 @@ function useChampionDetail(champions) {
         if (active) {
           setSelectedChampion(champion);
         }
-      } catch (err) {
+      } catch {
         if (active) {
           setError("No se pudo cargar el detalle del campeon.");
         }
@@ -52,7 +52,7 @@ function useChampionDetail(champions) {
     };
   }, [selectedChampionId, refreshKey]);
 
-  const refreshChampion = () => setRefreshKey((prev) => prev + 1);
+  const refreshChampion = useCallback(() => setRefreshKey((prev) => prev + 1), []);
 
   return {
     selectedChampionId,

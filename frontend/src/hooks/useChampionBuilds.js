@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getChampionBuilds } from "../services/champions.service";
 
 function useChampionBuilds(championId) {
@@ -6,7 +6,7 @@ function useChampionBuilds(championId) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const loadChampionsBuilds = async () => {
+  const loadChampionsBuilds = useCallback(async () => {
     if (!championId) {
       setCustomBuilds({});
       setError(null);
@@ -25,11 +25,11 @@ function useChampionBuilds(championId) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [championId]);
 
   useEffect(() => {
     loadChampionsBuilds();
-  }, [championId]);
+  }, [loadChampionsBuilds]);
 
   return {
     customBuilds,

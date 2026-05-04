@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 function ChampionList({ champions, selectedChampionId, onSelect }) {
   if (!champions.length) {
     return <p className="empty-state">No se encontraron campeones.</p>;
@@ -26,4 +28,4 @@ function ChampionList({ champions, selectedChampionId, onSelect }) {
   );
 }
 
-export default ChampionList;
+export default memo(ChampionList);

@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 function AuthSection({ authMode, authForm, authMessage, setAuthForm, onSubmit, onToggleMode }) {
   return (
     <main className="login-view">
@@ -41,4 +43,4 @@ function AuthSection({ authMode, authForm, authMessage, setAuthForm, onSubmit, o
   );
 }
 
-export default AuthSection;
+export default memo(AuthSection);

@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 function PlayerSearchPanel({ riotForm, setRiotForm, playerData, onSearchMatches }) {
   return (
     <section className="panel">
@@ -38,4 +40,4 @@ function PlayerSearchPanel({ riotForm, setRiotForm, playerData, onSearchMatches 
   );
 }
 
-export default PlayerSearchPanel;
+export default memo(PlayerSearchPanel);
